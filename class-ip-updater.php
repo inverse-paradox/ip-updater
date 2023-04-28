@@ -8,7 +8,13 @@ if ( class_exists( '\IP\Updater' ) ) return;
 /**
  * Inverse Paradox Updater Class
  * 
- * This class provides native WordPress update functionality to internal plugins. Updated plugin information is read from a remote manifest in JSON format. The response from the remote server is cached in a transient for 24 hours. When an update is found, the user can proceed using the standard WordPress methods for plugin updates. To use this functionality in a custom plugin, copy the class-ip-updater.php file into your plugin and instantiate the class from your main plugin file.
+ * This class provides native WordPress update functionality to internal plugins. 
+ * Updated plugin information is read from a remote manifest in JSON format. 
+ * The response from the remote server is cached in a transient for 24 hours. 
+ * When an update is found, the user can proceed using the standard WordPress 
+ * methods for plugin updates. To use this functionality in a custom plugin, 
+ * copy the class-ip-updater.php file into your plugin and instantiate the 
+ * class from your main plugin file.
  * 
  * Example usage:
  * $ip_updater = new IP\Updater( plugin_basename( __FILE__ ), '1.7.2', 'https://www.inverseparadox.com/test-manifest.json' );
