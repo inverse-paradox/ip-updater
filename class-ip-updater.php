@@ -47,7 +47,7 @@ class Updater {
         $this->version         = $version;
         $this->cache_key       = $this->plugin_slug . '_updater';
         $this->cache_allowed   = true;
-		$this->manifest_url    = ! empty( $manifest_url ) ? $manifest_url : 'https://inverseparadox.com/ip-plugins/' . $this->plugin_slug . '/manifest.json';
+		$this->manifest_url    = ! empty( $manifest_url ) ? $manifest_url : 'https://www.inverseparadox.com/wp-json/ip-plugin/v1/manifest/' . $this->plugin_slug;
 
         // Set IP_DEV_MODE to disable SSL checks and response caching
         if ( defined( 'IP_DEV_MODE' ) ) {
