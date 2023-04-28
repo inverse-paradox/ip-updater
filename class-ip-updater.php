@@ -2,8 +2,24 @@
 
 namespace IP;
 
+// Don't define the class twice
+if ( class_exists( '\IP\Updater' ) ) return;
+
+/**
+ * Inverse Paradox Updater Class
+ * 
+ * This class provides native WordPress update functionality to internal plugins. Updated plugin information is read from a remote manifest in JSON format. The response from the remote server is cached in a transient for 24 hours. When an update is found, the user can proceed using the standard WordPress methods for plugin updates. To use this functionality in a custom plugin, copy the class-ip-updater.php file into your plugin and instantiate the class from your main plugin file.
+ * 
+ * Example usage:
+ * $ip_updater = new IP\Updater( plugin_basename( __FILE__ ), '1.7.2', 'https://www.inverseparadox.com/test-manifest.json' );
+ * 
+ * @author Erik Teichmann <erik@inverseparadox.net>
+ * @version 1.0.0
+ * @see https://anchor.host/using-github-to-self-host-updates-for-wordpress-plugins/
+ */
 class Updater {
 
+    public $plugin_basename;
     public $plugin_slug;
     public $version;
     public $cache_key;
@@ -13,24 +29,27 @@ class Updater {
 	/**
 	 * Initialize the Updater
 	 *
+     * @param string $plugin_basename Basename of the plugin file
 	 * @param string $version Current version of the plugin
 	 * @param string $manifest_url URL to the manifest JSON
 	 */
-    public function __construct( $version, $manifest_url ) {
+    public function __construct( $plugin_basename, $version, $manifest_url = '' ) {
 
-		// Set IP_DEV_MODE to disable SSL checks
+        // Set up the configuration for the updater
+        $this->plugin_basename = $plugin_basename;
+        $this->plugin_slug     = dirname( $plugin_basename ); //dirname ( plugin_basename( __DIR__ ) );
+        $this->version         = $version;
+        $this->cache_key       = $this->plugin_slug . '_updater';
+        $this->cache_allowed   = true;
+		$this->manifest_url    = ! empty( $manifest_url ) ? $manifest_url : 'https://inverseparadox.com/ip-plugins/' . $this->plugin_slug . '/manifest.json';
+
+        // Set IP_DEV_MODE to disable SSL checks and response caching
         if ( defined( 'IP_DEV_MODE' ) ) {
             add_filter('https_ssl_verify', '__return_false');
             add_filter('https_local_ssl_verify', '__return_false');
             add_filter('http_request_host_is_external', '__return_true');
+            $this->cache_allowed = false;
         }
-
-		// Set up the configuration for the updater
-        $this->plugin_slug   = dirname ( plugin_basename( __DIR__ ) );
-        $this->version       = $version;
-        $this->cache_key     = $this->plugin_slug . '_updater';
-        $this->cache_allowed = false;
-		$this->manifest_url  = $manifest_url;
 
 		// Show the plugin info on the plugins listing
         add_filter( 'plugins_api', [ $this, 'info' ], 20, 3 );
@@ -76,7 +95,7 @@ class Updater {
 		// Decode the JSON and return as an array
         $remote = json_decode( wp_remote_retrieve_body( $remote ) );
 
-        return $remote;
+		return $remote;
 
     }
 
@@ -90,7 +109,7 @@ class Updater {
 	 */
     function info( $response, $action, $args ) {
 
-        // Do nothing if we're not getting plugin information right now
+		// Do nothing if we're not getting plugin information right now
         if ( 'plugin_information' !== $action ) {
             return $response;
         }
@@ -138,7 +157,7 @@ class Updater {
             ];
         }
 
-        return $response;
+		return $response;
 
     }
 
@@ -160,9 +179,10 @@ class Updater {
 
 		// If the local version is older, show the updated plugin info
         if ( $remote && version_compare( $this->version, $remote->version, '<' ) && version_compare( $remote->requires, get_bloginfo( 'version' ), '<=' ) && version_compare( $remote->requires_php, PHP_VERSION, '<' ) ) {
-            $response              = new \stdClass();
+
+			$response              = new \stdClass();
             $response->slug        = $this->plugin_slug;
-            $response->plugin      = "{$this->plugin_slug}/{$this->plugin_slug}.php";
+            $response->plugin      = $this->plugin_basename;
             $response->new_version = $remote->version;
             $response->tested      = $remote->tested;
             $response->package     = $remote->download_url;
@@ -170,8 +190,8 @@ class Updater {
             $transient->response[ $response->plugin ] = $response;
 
         }
-
-        return $transient;
+		
+		return $transient;
 
     }
 
