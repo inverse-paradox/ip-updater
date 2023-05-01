@@ -15,6 +15,8 @@ There are two components to the plugin updater -- the `IP\Updater` class you wil
 $ip_updater = new IP\Updater( plugin_basename( __FILE__ ), '1.7.2', 'https://www.inverseparadox.com/test-manifest.json' );
 ```
 
+_Note: If you are instantiating the class in the global scope, be sure to use a distinct variable name to avoid conflicts with other IP plugins using the updater._
+
 The `IP\Updater` class constructor has three parameters:
 
 1. `string $plugin_basename` - This is the directory and filename of your plugin. This must be set to the main plugin file for WordPress to properly update your plugin. The easiest way to do this is to include the instantiator in the main plugin file, and use `plugin_basename( __FILE__ )` to get the basename. This can also be set manually with a string if necessary, eg `your-plugin-folder/main-file.php`. The directory component of the basename is used to set the cache key used for storing the plugin update transient.
