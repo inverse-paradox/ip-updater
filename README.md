@@ -50,3 +50,32 @@ The manifest contains details about your plugin that will be displayed on the Wo
 	}
 }
 ```
+
+### Create a IP Plugin post on inverseparadox.com
+
+Instead of manually creating `manifest.json` files for every release, I've created a custom post type and some supporting code on the Inverse Paradox website. An `ip-plugin` post contains a description, images, tested-to versions, added/updated dates and metadata about the plugin. A repeater field on this post contains information on each version of the plugin, including version number, release date, and a changelog, as well as an uploader for the ZIP file that will be distributed to sites when updating.
+
+1. Visit the dashboard and navigate to _IP Plugins > Add New_ and create a new plugin post.
+2. Enter the plugin title and a description. The Block Editor content can contain any information, images, videos, etc. This will only be displayed on the IP website, not in the plugin updater. Consider this a landing page for information about the plugin.
+3. Under the _IP Plugin_ metabox, fill in the information under **Plugin Details**. 
+	1. **Plugin Slug** should match the folder name of the plugin being updated. 
+	2. **Author** and **Author Profile** are filled by default to Inverse Paradox
+	3. **Required WordPress Version** should be the earliest supported version of WordPress for the plugin. If a site requesting updates does not meet this minimum version, the update will not be downloaded.
+	4. **Tested WordPress Version** will display a warning if the site requesting updates is newer than this version.
+	5. **PHP Version Required** will prevent updates from being downloaded if the requesting site's PHP version is older.
+	6. **Description** contains a brief plugin description that is displayed to the user in the WordPress Updater. 
+	7. **Installation Instructions** are displayed on the WordPress updater. 
+4. Under the _Images_ tab, upload images for the low- and high-res banners. These are displayed in the plugin updater when the user clicks the _More Info_ link.
+5. Finally, the _Versions_ tab contains an ACF repeater with information on each release of the plugin.
+	1. Click **Add Version** to add a new version.
+	2. Enter the **Version** number for the plugin. This will be used for [version comparison](https://www.php.net/manual/en/function.version-compare.php) so make sure it follows the [Semantic Versioning](https://semver.org/) standart (eg "1.0.0"). 
+	3. Under **Plugin ZIP** upload a ZIP compressed file for this version of the plugin. This ZIP file should extract to a single folder matching your plugin slug. Preferably, the ZIP file should be named as the plugin slug followed by the version number, eg `ip-sample-plugin-1.0.0.zip`
+	4. Add entries under the **Changelog** for each change item. See [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) for some best practices on writing changelogs.
+
+After publishing the post, the frontend page for the plugin will be displayed with the latest version available for download and the changelog, and a new `manifest.json` will be automatically created at the `ip-plugin` route of the WordPress REST API:
+
+```
+https://www.inverseparadox.com/wp-json/ip-plugin/v1/manifest/ip-sample-plugin
+```
+
+By default, the `IP\Updater` class will look for updates at the URL matching your plugin's slug. When an updated version is available, the WordPress Plugin Updater will show it as available, allowing the user to automatically update. In this process, the ZIP file for the current version will be downloaded and installed on the local server.
