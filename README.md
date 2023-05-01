@@ -19,7 +19,7 @@ The `IP\Updater` class constructor has three parameters:
 
 1. `string $plugin_basename` - This is the directory and filename of your plugin. This must be set to the main plugin file for WordPress to properly update your plugin. The easiest way to do this is to include the instantiator in the main plugin file, and use `plugin_basename( __FILE__ )` to get the basename. This can also be set manually with a string if necessary, eg `your-plugin-folder/main-file.php`. The directory component of the basename is used to set the cache key used for storing the plugin update transient.
 2. `string $version` - This is the _current_ version of your plugin. This is used when comparing versions against the remote. Ideally this should be set using a constant or class property in your plugin, so when the plugin is updated we minimize the number of places the version number has to be bumped.
-3. `string $manifest_url` - This parameter sets the location of the `manifest.json` file that will be used to signal when a new update for your plugin is available. If omitted, this will default to `https://inverseparadox.com/ip-plugins/{plugin_slug}/manifest.json`. 
+3. `string $manifest_url` **Optional** - This parameter sets the location of the `manifest.json` file that will be used to signal when a new update for your plugin is available. If omitted, this will default to `https://www.inverseparadox.com/wp-json/ip-plugin/v1/manifest/{plugin-slug}`. 
 
 ### Create a `manifest.json`
 
